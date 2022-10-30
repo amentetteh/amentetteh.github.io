@@ -1,0 +1,3 @@
+[submodule "fintech-challenge-final-web"]
+	path = fintech-challenge-final-web
+	url = https://github.com/amentetteh/fintech-challenge-final-web-site.git
