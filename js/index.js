@@ -1,99 +1,170 @@
-import { speakers } from "../data/speakers.js";
-import { isMobile } from "./util.js";
+import { projects } from '../data/projects.js';
+import { isMobile } from './util.js';
+import { buildProjectDetailsWindow } from '../js/project-details-popup.js';
 const hamburger = document.querySelector('.menu-button-container');
-const menu = document.querySelector('#first-item');
-const canceIcon = document.querySelector('#cancel-icon');
-const menuIcon = document.querySelector('#menu-icon');
+const menu = document.querySelector('.menu');
+const logo = document.querySelector('#logo-placeholder');
+const canceIcon = document.querySelector('.cancel-icon');
+const menuIcon = document.querySelector('.menu-icon');
+const projectDetailId = document.querySelector('#project-detail-id');
 
-hamburger.addEventListener('click', (event) => {
-     if(event.target.id==='menu-icon'){
-        hamburger.classList.toggle('active');
-        menu.classList.toggle('active'); 
-        canceIcon.classList.toggle('active');
-        menuIcon.classList.toggle('active');
-    }else{
-        onCancel()
-    }
- 
-  });
+hamburger.addEventListener('click', () => {
+  console.log('sssssssssssssss');
+  hamburger.classList.toggle('active');
+  menu.classList.toggle('active');
+  logo.classList.toggle('active');
+  canceIcon.classList.toggle('active');
+  menuIcon.classList.toggle('active');
+});
 
-  document.querySelectorAll('#first-item .nav-link').forEach((item) =>
+document.querySelectorAll('.menu .nav-link').forEach((item) =>
   item.addEventListener('click', () => {
     onCancel();
-    console.log('xxxxxxxxxxxxxxxxxxxqqqq');
-
-    console.log('xxxxxxxxxxxxxxxxxxxqqqqq');
+    console.log('xxxxxxxxxxxxxxxxxxx');
+    console.log(buildProjectDetailsWindow());
+    console.log('xxxxxxxxxxxxxxxxxxx');
   })
 );
+injectProjectSectionHML();
+injectbuildProjectDetailsWindowHML();
 
-const onCancel = () =>{
-    hamburger.classList.remove('active');
-    menu.classList.remove('active'); 
-    canceIcon.classList.remove('active');
-    menuIcon.classList.remove('active');
+document
+  .querySelectorAll('section#recent-works .detail-button')
+  .forEach((item) =>
+    item.addEventListener('click', (event) => {
+      let project_id =
+        event.target.parentNode.getElementsByTagName('span')[0].innerHTML;
+      let project = projects.find((item) => item.id == project_id),
+        imageField = document.querySelector(
+          '#project-detail-id .project-details-header img'
+        ),
+        titleField = document.querySelector(
+          '#project-detail-id .project-detail-headline h1'
+        ),
+        descriptionField = document.querySelector('#project-detail-id p'),
+        technologyButtons = document.querySelectorAll(
+          '#project-detail-id .tag-button'
+        );
+
+      imageField.src = isMobile()
+        ? project.featured_image_link[0]
+        : project.featured_image_link[1];
+      titleField.innerHTML = project.title;
+      descriptionField.innerHTML = project.description;
+      for (let i = 0; i < project.technologies.length; i++) {
+        if (technologyButtons[i]) {
+          technologyButtons[i].innerHTML = project.technologies[i];
+          console.log(technologyButtons[i].innerHTML);
+        }
+      }
+      console.log(imageField.src);
+
+      //console.log(document.querySelector(event.target.parentNode+" #project-detail-id-value"))
+      projectDetailId.classList.toggle('active');
+    })
+  );
+
+const closeButton = document.querySelector('.close');
+closeButton.addEventListener('click', () => {
+  console.log('WWWWWWWWWWWWIIIIIIIIIIIIIIIIIIIIII');
+  projectDetailId.classList.remove('active');
+});
+
+function onCancel() {
+  hamburger.classList.remove('active');
+  menu.classList.remove('active');
+  logo.classList.remove('active');
+  canceIcon.classList.remove('active');
+  menuIcon.classList.remove('active');
+}
+function buildProjecstSection() {
+  let projectsSection = '';
+  projectsSection += `<h2 class="primary-header">
+                            My Recent Works
+                            <span id="indicator"></span>
+                        </h2>
+                        <ul class="works-cards">`;
+
+  let projectsList = '';
+
+  for (let i = 0; i < projects.length; i++) {
+    projectsList += `<li class="card">
+        <header class="card-header"></header>
+        <div class="card-content">
+        <span id="project-detail-id-value">${projects[i].id}</span>
+          <h3 class="project-title">${projects[i].title}</h3>
+          <p class="project-tags">
+          <ul class="project-tags-list">`;
+    let tech = '';
+    for (let j = 0; j < projects[i].technologies.length; j++) {
+      tech += `<li><button class="tag-button">${projects[i].technologies[j]}</button></li>`;
+    }
+    projectsList += tech;
+    projectsList += `</ul></p>
+          <button class="green-button detail-button">See Project</button>
+        </div>
+      </li>`;
   }
-
-const createCard = (item) => {
-  return `<li class="card">
-    <img class="photo" src=${item.image_link} alt="">
-    <aside class="right">
-        <h2 class="name">${item.speaker_name}</h2>
-        <p class="title">
-        ${item.speaker_title}
-        </p>
-        <span class="line"></span>
-        <p class="bio">
-        ${item.speaker_bio}
-        </p>
-    </aside>
-  </li>`;
-};
-
-const generateNCard = (index) => {
-  let str = "";
-  for (let i = 0; i < index; i++) {
-    str += createCard(speakers[i]);
-  }
-  return str;
-};
-
-const buildSpeakersSection = (index) => {
-  let str = ` <h1>Featured Speakers</h1>
-    <span class="speaker-bar"></span>
-    <ul class="card-list">`;
-  str += generateNCard(index);
-  str += `<button class="see-more-btn">
-    <span class="see-more">MORE</span>
-    <img src="assets/images/arrow_down.png" alt="More" class="more_icon">
-  </button>`;
-  return str;
-};
-const injectSpeakersSectionIntoDOM = (index) => {
-    let speakers = document.getElementById("speakers");
-  if(speakers){
-    speakers.insertAdjacentHTML("afterbegin", buildSpeakersSection(index));
-  }
-
-};
-
-if (isMobile()) {
-  injectSpeakersSectionIntoDOM(2);
-} else {
-  injectSpeakersSectionIntoDOM(6);
+  projectsSection += projectsList;
+  return projectsSection;
 }
 
-const moreSpeakerButton = document.querySelector(".see-more-btn");
-const updateSpeakersSection = () => {
-  let speakers = document.getElementById("speakers");
-  if (speakers) {
-    speakers.innerHTML = "";
-    injectSpeakersSectionIntoDOM(6);
-    moreSpeakerButton.classList.toggle("hidden");
-  }
-};
-if(moreSpeakerButton){
-    moreSpeakerButton.addEventListener("click", () => {
-        updateSpeakersSection();
-      });
+function injectProjectSectionHML() {
+  document
+    .getElementById('recent-works')
+    .insertAdjacentHTML('afterbegin', buildProjecstSection());
 }
+
+function injectbuildProjectDetailsWindowHML() {
+  document
+    .getElementById('project-detail-id')
+    .insertAdjacentHTML('afterbegin', buildProjectDetailsWindow());
+}
+
+//Add form validation
+
+let form = document.querySelector('#contact-form form'),
+  errMessageZone = document.querySelector('#error-message'),
+  emailClass = document.querySelector('#contact-form .email');
+
+form.addEventListener('submit', (event) => {
+  let email = document.querySelector('#email');
+  let emailRegExp = /[A-Z]/;
+
+  if (!emailRegExp.test(email.value.trim())) {
+    form.submit();
+  } else {
+    event.preventDefault();
+    //emailClass.classList.toggle('error');
+    errMessageZone.innerText =
+      'Please enter an entirely lower case email, please';
+  }
+});
+
+// preserving Data
+
+const fullName = document.getElementById('fullName');
+const email = document.getElementById('email');
+const message = document.getElementById('message');
+
+document.addEventListener('change', () => {
+
+  const data = {
+    fullName: fullName.value,
+    messsage: message.value,
+    email: email.value,
+  };
+  localStorage.setItem('contacts', JSON.stringify(data));
+});
+
+window.addEventListener('DOMContentLoaded', function (e) {
+    let contacts=JSON.parse(localStorage.getItem('contacts')) 
+    if(contacts){
+        fullName.value=contacts.fullName
+        message.value=contacts.message
+        email.value=contacts.email
+    }   
+  });
+
+
 
